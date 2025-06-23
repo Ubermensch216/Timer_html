@@ -43,6 +43,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .timer-display:hover {
+            transform: scale(1.02);
+        }
+
+        .timer-display:active {
+            transform: scale(0.98);
         }
 
         .timer-display.warning {
@@ -289,14 +302,14 @@
     <div class="flash-overlay" id="flashOverlay"></div>
     
     <div class="container">
-        <div class="timer-display" id="timerDisplay">00:00</div>
+        <div class="timer-display" id="timerDisplay" onclick="toggleTimer()">03:00</div>
         
         <div class="controls">
             <div class="top-row">
                 <div class="time-input">
                     <div>
                         <label for="minutes">분</label>
-                        <input type="number" id="minutes" min="0" max="59" value="0">
+                        <input type="number" id="minutes" min="0" max="59" value="3">
                     </div>
                     <div>
                         <label for="seconds">초</label>
@@ -507,7 +520,10 @@
             stopAlarm();
             remainingSeconds = 0;
             totalSeconds = 0;
-            updateDisplay();
+            
+            // 기본값 3분으로 설정
+            document.getElementById('minutes').value = 3;
+            document.getElementById('seconds').value = 0;
             
             // 알림 플래그 초기화
             notificationPlayed = {
@@ -520,13 +536,12 @@
                 1: false
             };
             
-            // 입력 필드 활성화 및 초기화
+            // 입력 필드 활성화
             document.getElementById('minutes').disabled = false;
             document.getElementById('seconds').disabled = false;
             
-            document.getElementById('minutes').value = 0;
-            document.getElementById('seconds').value = 0;
-            
+            // 디스플레이를 03:00으로 표시
+            document.getElementById('timerDisplay').textContent = '03:00';
             document.getElementById('timerDisplay').classList.remove('warning', 'danger', 'alarm');
         }
 
@@ -592,15 +607,22 @@
             document.getElementById('seconds').value = 0;
         }
 
+        // 타이머 토글 (화면 클릭)
+        function toggleTimer() {
+            if (isAlarming) {
+                stopAlarm();
+            } else if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
         // 키보드 단축키
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
-                if (isRunning) {
-                    pauseTimer();
-                } else {
-                    startTimer();
-                }
+                toggleTimer();
             } else if (e.code === 'KeyR') {
                 resetTimer();
             } else if (e.code === 'KeyF') {
@@ -610,7 +632,7 @@
             }
         });
 
-        // 초기 표시
+        // 초기 표시 - 기본값 3분
         updateDisplay();
     </script>
 </body>
