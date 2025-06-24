@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a2e;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 1rem 0;
+        }
+
+        .timer-display {
+            font-size: clamp(8.64rem, 28.8vw, 33rem);
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .timer-display:hover {
+            transform: scale(1.02);
+        }
+
+        .timer-display:active {
+            transform: scale(0.98);
+        }
+
+        .timer-display.warning {
+            color: #ffcc00;
+        }
+
+        .timer-display.danger {
+            color: #ff6b6b;
+        }
+
+        .timer-display.alarm {
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.05); 
+                opacity: 0.8;
+            }
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 600px;
+            height: 15vh;
+            max-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .top-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .time-input {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .time-input input {
+            width: 60px;
+            padding: 0.3rem;
+            font-size: 1.2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .time-input input:focus {
+            outline: none;
+            border-color: #4cc9f0;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .time-input label {
+            font-size: 0.75rem;
+            margin-bottom: 0.2rem;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .preset-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .notification-settings {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .notification-settings label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .notification-settings input[type="checkbox"] {
+            margin-right: 0.3rem;
+            cursor: pointer;
+        }
+
+        .bottom-row {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.5rem 1.2rem;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-start {
+            background: #4cc9f0;
+            color: #1a1a2e;
+        }
+
+        .btn-start:hover {
+            background: #7dd3fc;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(76, 201, 240, 0.4);
+        }
+
+        .btn-pause {
+            background: #ffa500;
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background: #ffb732;
+        }
+
+        .btn-stop {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #c0392b;
+        }
+
+        .btn-reset {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-fullscreen {
+            background: #a855f7;
+            color: white;
+        }
+
+        .btn-fullscreen:hover {
+            background: #c084fc;
+        }
+
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .flash-overlay.active {
+            animation: flash 0.5s ease-in-out;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.8; }
+        }
+
+        /* 전체화면 모드 스타일 */
+        :fullscreen .controls {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.9;
+        }
+
+        :fullscreen .timer-display {
+            font-size: clamp(11.52rem, 36vw, 35rem);
+        }
+
+        :-webkit-full-screen .controls {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.9;
+        }
+
+        :-webkit-full-screen .timer-display {
+            font-size: clamp(11.52rem, 36vw, 35rem);
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                padding: 0.6rem 1rem;
+            }
+            
+            .time-input input {
+                width: 50px;
+                font-size: 1rem;
+            }
+            
+            button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flash-overlay" id="flashOverlay"></div>
+    
+    <div class="container">
+        <div class="timer-display" id="timerDisplay" onclick="toggleTimer()">03:00</div>
+        
+        <div class="controls">
+            <div class="top-row">
+                <div class="time-input">
+                    <div>
+                        <label for="minutes">분</label>
+                        <input type="number" id="minutes" min="0" max="59" value="3">
+                    </div>
+                    <div>
+                        <label for="seconds">초</label>
+                        <input type="number" id="seconds" min="0" max="59" value="0">
+                    </div>
+                </div>
+                
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setPresetTime(1)">1분</button>
+                    <button class="preset-btn" onclick="setPresetTime(3)">3분</button>
+                    <button class="preset-btn" onclick="setPresetTime(5)">5분</button>
+                </div>
+                
+                <div class="notification-settings">
+                    <label>
+                        <input type="checkbox" id="notify20" checked> 20초
+                    </label>
+                    <label>
+                        <input type="checkbox" id="notify10" checked> 10초
+                    </label>
+                </div>
+            </div>
+            
+            <div class="bottom-row">
+                <button class="btn-start" id="startBtn" onclick="startTimer()">시작</button>
+                <button class="btn-pause" id="pauseBtn" onclick="pauseTimer()" style="display:none;">일시정지</button>
+                <button class="btn-stop" id="stopBtn" onclick="stopAlarm()" style="display:none;">정지</button>
+                <button class="btn-reset" onclick="resetTimer()">초기화</button>
+                <button class="btn-fullscreen" onclick="toggleFullscreen()">전체화면</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let timerInterval = null;
+        let isRunning = false;
+        let audioContext = null;
+        let alarmInterval = null;
+        let flashInterval = null;
+        let isAlarming = false;
+        let notificationPlayed = {
+            20: false,
+            10: false,
+            5: false,
+            4: false,
+            3: false,
+            2: false,
+            1: false
+        };
+
+        // 오디오 컨텍스트 초기화
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // 비프음 생성
+        function playBeep(frequency = 800, duration = 200, volume = 0.3) {
+            if (!audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration / 1000);
+            } catch (e) {
+                console.error('Audio playback error:', e);
+            }
+        }
+
+        // 중간 알림음
+        function playNotificationBeep(seconds) {
+            if (seconds === 20) {
+                playBeep(700, 150, 0.25);
+                setTimeout(() => playBeep(700, 150, 0.25), 200);
+            } else if (seconds === 10) {
+                playBeep(800, 200, 0.3);
+                setTimeout(() => playBeep(800, 200, 0.3), 250);
+                setTimeout(() => playBeep(800, 200, 0.3), 500);
+            }
+        }
+
+        // 카운트다운 알림음
+        function playCountdownBeep(seconds) {
+            // 숫자가 작아질수록 높은 음
+            const frequency = 600 + (5 - seconds) * 100;
+            playBeep(frequency, 150, 0.35);
+        }
+
+        // 알람 패턴
+        function playAlarmPattern() {
+            if (!isAlarming) return;
+            playBeep(800, 200);
+            setTimeout(() => isAlarming && playBeep(1000, 200), 300);
+            setTimeout(() => isAlarming && playBeep(1200, 400), 600);
+        }
+
+        // 시간 표시 업데이트
+        function updateDisplay() {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            
+            const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = display;
+            
+            // 경고 색상
+            const timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.classList.remove('warning', 'danger', 'alarm');
+            
+            // 중간 알림 체크
+            if (isRunning && remainingSeconds > 0) {
+                // 20초 알림
+                if (remainingSeconds === 20 && !notificationPlayed[20] && document.getElementById('notify20').checked) {
+                    playNotificationBeep(20);
+                    notificationPlayed[20] = true;
+                }
+                // 10초 알림
+                if (remainingSeconds === 10 && !notificationPlayed[10] && document.getElementById('notify10').checked) {
+                    playNotificationBeep(10);
+                    notificationPlayed[10] = true;
+                }
+                // 5초부터 카운트다운 알림
+                if (remainingSeconds <= 5 && remainingSeconds >= 1 && !notificationPlayed[remainingSeconds]) {
+                    playCountdownBeep(remainingSeconds);
+                    notificationPlayed[remainingSeconds] = true;
+                }
+            }
+            
+            if (remainingSeconds === 0 && isRunning) {
+                timerDisplay.classList.add('alarm');
+                triggerAlarm();
+            } else if (remainingSeconds <= 10 && remainingSeconds > 0) {
+                timerDisplay.classList.add('danger');
+            } else if (remainingSeconds <= 30) {
+                timerDisplay.classList.add('warning');
+            }
+        }
+
+        // 타이머 시작
+        function startTimer() {
+            if (!isRunning) {
+                const minutes = parseInt(document.getElementById('minutes').value) || 0;
+                const seconds = parseInt(document.getElementById('seconds').value) || 0;
+                
+                if (remainingSeconds === 0) {
+                    totalSeconds = minutes * 60 + seconds;
+                    remainingSeconds = totalSeconds;
+                    // 알림 플래그 초기화
+                    notificationPlayed = {
+                        20: false,
+                        10: false,
+                        5: false,
+                        4: false,
+                        3: false,
+                        2: false,
+                        1: false
+                    };
+                }
+                
+                if (remainingSeconds > 0) {
+                    isRunning = true;
+                    document.getElementById('startBtn').style.display = 'none';
+                    document.getElementById('pauseBtn').style.display = 'block';
+                    
+                    // 입력 필드 비활성화
+                    document.getElementById('minutes').disabled = true;
+                    document.getElementById('seconds').disabled = true;
+                    
+                    timerInterval = setInterval(() => {
+                        if (remainingSeconds > 0) {
+                            remainingSeconds--;
+                            updateDisplay();
+                        } else {
+                            pauseTimer();
+                        }
+                    }, 1000);
+                    
+                    // 사용자 상호작용을 통해 오디오 컨텍스트 활성화
+                    initAudioContext();
+                }
+            }
+        }
+
+        // 타이머 일시정지
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+        }
+
+        // 타이머 초기화
+        function resetTimer() {
+            pauseTimer();
+            stopAlarm();
+            remainingSeconds = 0;
+            totalSeconds = 0;
+            
+            // 기본값 3분으로 설정
+            document.getElementById('minutes').value = 3;
+            document.getElementById('seconds').value = 0;
+            
+            // 알림 플래그 초기화
+            notificationPlayed = {
+                20: false,
+                10: false,
+                5: false,
+                4: false,
+                3: false,
+                2: false,
+                1: false
+            };
+            
+            // 입력 필드 활성화
+            document.getElementById('minutes').disabled = false;
+            document.getElementById('seconds').disabled = false;
+            
+            // 디스플레이를 03:00으로 표시
+            document.getElementById('timerDisplay').textContent = '03:00';
+            document.getElementById('timerDisplay').classList.remove('warning', 'danger', 'alarm');
+        }
+
+        // 알람 정지
+        function stopAlarm() {
+            isAlarming = false;
+            clearInterval(alarmInterval);
+            clearInterval(flashInterval);
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('timerDisplay').classList.remove('alarm');
+        }
+
+        // 알람 트리거
+        function triggerAlarm() {
+            isAlarming = true;
+            document.getElementById('stopBtn').style.display = 'block';
+            
+            // 소리 알람
+            playAlarmPattern();
+            alarmInterval = setInterval(playAlarmPattern, 2000);
+            
+            // 화면 깜빡임
+            const flashOverlay = document.getElementById('flashOverlay');
+            let flashCount = 0;
+            
+            const flash = () => {
+                if (!isAlarming) return;
+                flashOverlay.classList.add('active');
+                setTimeout(() => flashOverlay.classList.remove('active'), 500);
+            };
+            
+            flash();
+            flashInterval = setInterval(flash, 1000);
+        }
+
+        // 전체화면 토글
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                // 전체화면 진입
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                // 전체화면 해제
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        // 프리셋 시간 설정
+        function setPresetTime(minutes) {
+            document.getElementById('minutes').value = minutes;
+            document.getElementById('seconds').value = 0;
+        }
+
+        // 타이머 토글 (화면 클릭)
+        function toggleTimer() {
+            if (isAlarming) {
+                stopAlarm();
+            } else if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                toggleTimer();
+            } else if (e.code === 'KeyR') {
+                resetTimer();
+            } else if (e.code === 'KeyF') {
+                toggleFullscreen();
+            } else if (e.code === 'KeyS' && isAlarming) {
+                stopAlarm();
+            }
+        });
+
+        // 초기 표시 - 기본값 3분
+        updateDisplay();
+    </script>
+</body>
+</html>
