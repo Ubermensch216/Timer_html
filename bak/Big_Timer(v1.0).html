@@ -2,24 +2,27 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Big Timer</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Arial', sans-serif;
             background: #1a1a2e;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
+            touch-action: manipulation;
         }
 
         .container {
@@ -28,18 +31,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             height: 100vh;
-            padding: 1rem 0;
+            height: 100dvh;
+            padding: 1rem;
+            gap: 1rem;
         }
 
         .timer-display {
-            font-size: clamp(8.64rem, 28.8vw, 33rem);
+            font-size: clamp(4rem, 20vw, 20rem);
             font-weight: bold;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
             transition: all 0.3s ease;
-            flex: 1;
+            flex: 0 1 auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -48,6 +53,8 @@
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
+            padding: 2rem 1rem;
+            width: 100%;
         }
 
         .timer-display:hover {
@@ -70,6 +77,12 @@
             animation: pulse 0.5s infinite;
         }
 
+        .timer-display.overtime {
+            color: #ff1744;
+            text-shadow: 0 0 30px rgba(255, 23, 68, 0.8);
+            animation: glow 2s ease-in-out infinite;
+        }
+
         @keyframes pulse {
             0%, 100% { 
                 transform: scale(1); 
@@ -81,26 +94,45 @@
             }
         }
 
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(255, 23, 68, 0.8),
+                            0 0 40px rgba(255, 23, 68, 0.6),
+                            0 0 60px rgba(255, 23, 68, 0.4);
+            }
+            50% {
+                text-shadow: 0 0 30px rgba(255, 23, 68, 1),
+                            0 0 50px rgba(255, 23, 68, 0.8),
+                            0 0 70px rgba(255, 23, 68, 0.6);
+            }
+        }
+
         .controls {
             background: rgba(255, 255, 255, 0.1);
-            padding: 0.8rem 1.5rem;
-            border-radius: 10px;
+            padding: 1rem;
+            border-radius: 15px;
             backdrop-filter: blur(10px);
-            width: 90%;
+            width: 100%;
             max-width: 600px;
-            height: 15vh;
-            max-height: 120px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
         .top-row {
             display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .time-input-wrapper {
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .time-input {
@@ -109,13 +141,13 @@
         }
 
         .time-input input {
-            width: 60px;
-            padding: 0.3rem;
-            font-size: 1.2rem;
+            width: 70px;
+            padding: 0.6rem;
+            font-size: 1.25rem;
             text-align: center;
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 6px;
+            border-radius: 8px;
             color: white;
             transition: all 0.3s ease;
         }
@@ -127,27 +159,29 @@
         }
 
         .time-input label {
-            font-size: 0.75rem;
-            margin-bottom: 0.2rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
             opacity: 0.8;
             display: block;
         }
 
         .preset-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .preset-btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
             background: rgba(255, 255, 255, 0.2);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
+            border: none;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: none;
+            min-width: 60px;
         }
 
         .preset-btn:hover {
@@ -157,35 +191,41 @@
 
         .notification-settings {
             display: flex;
-            gap: 1rem;
-            font-size: 0.8rem;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            justify-content: center;
         }
 
         .notification-settings label {
             display: inline-flex;
             align-items: center;
             cursor: pointer;
+            padding: 0.3rem;
         }
 
         .notification-settings input[type="checkbox"] {
-            margin-right: 0.3rem;
+            margin-right: 0.4rem;
             cursor: pointer;
+            width: 18px;
+            height: 18px;
         }
 
         .bottom-row {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.6rem;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         button {
-            padding: 0.5rem 1.2rem;
-            font-size: 0.95rem;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
             border: none;
-            border-radius: 20px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            min-height: 44px;
         }
 
         .btn-start {
@@ -235,6 +275,27 @@
             background: #c084fc;
         }
 
+        /* 전체화면 힌트 */
+        .fullscreen-hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fullscreen-hint.show {
+            opacity: 1;
+        }
+
         .flash-overlay {
             position: fixed;
             top: 0;
@@ -257,70 +318,237 @@
         }
 
         /* 전체화면 모드 스타일 */
-        :fullscreen .controls {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0.9;
+        :fullscreen {
+            background: #1a1a2e;
+        }
+
+        :fullscreen .container {
+            justify-content: center;
+            padding: 0;
         }
 
         :fullscreen .timer-display {
-            font-size: clamp(11.52rem, 36vw, 35rem);
+            font-size: clamp(8rem, 30vw, 35rem);
+            flex: 1;
+            padding: 2rem;
+        }
+
+        :fullscreen .controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120%);
+            opacity: 0;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        :fullscreen .controls.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        :-webkit-full-screen {
+            background: #1a1a2e;
+        }
+
+        :-webkit-full-screen .container {
+            justify-content: center;
+            padding: 0;
+        }
+
+        :-webkit-full-screen .timer-display {
+            font-size: clamp(8rem, 30vw, 35rem);
+            flex: 1;
+            padding: 2rem;
         }
 
         :-webkit-full-screen .controls {
             position: fixed;
-            bottom: 1rem;
+            bottom: 2rem;
             left: 50%;
-            transform: translateX(-50%);
-            opacity: 0.9;
+            transform: translateX(-50%) translateY(120%);
+            opacity: 0;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
         }
 
-        :-webkit-full-screen .timer-display {
-            font-size: clamp(11.52rem, 36vw, 35rem);
+        :-webkit-full-screen .controls.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: all;
         }
 
-        @media (max-width: 600px) {
-            .controls {
-                padding: 0.6rem 1rem;
+        /* 작은 모바일 화면 (높이 600px 이하) */
+        @media (max-height: 600px) {
+            .container {
+                gap: 0.5rem;
+                padding: 0.5rem;
             }
             
-            .time-input input {
-                width: 50px;
-                font-size: 1rem;
+            .timer-display {
+                font-size: clamp(3rem, 18vw, 10rem);
+                padding: 1rem;
+            }
+            
+            .controls {
+                padding: 0.8rem;
+                gap: 0.6rem;
             }
             
             button {
-                padding: 0.4rem 0.8rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+                min-height: 40px;
+            }
+            
+            .time-input input {
+                width: 60px;
+                padding: 0.5rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* 중간 크기 화면 (360px ~ 768px) */
+        @media (min-width: 360px) and (max-width: 768px) {
+            .timer-display {
+                font-size: clamp(5rem, 22vw, 15rem);
+            }
+            
+            .top-row {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .time-input-wrapper {
+                flex: 1 1 100%;
+            }
+        }
+
+        /* 태블릿 및 데스크톱 (768px 이상) */
+        @media (min-width: 768px) {
+            .container {
+                padding: 2rem;
+                gap: 2rem;
+            }
+            
+            .timer-display {
+                font-size: clamp(8rem, 25vw, 28rem);
+                padding: 3rem 2rem;
+            }
+            
+            .controls {
+                padding: 1.2rem 2rem;
+                max-width: 700px;
+            }
+            
+            .top-row {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 2rem;
+            }
+            
+            .time-input-wrapper {
+                flex-direction: row;
+                gap: 2rem;
+            }
+            
+            button {
+                padding: 0.8rem 2rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* 가로 모드 (landscape) */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .container {
+                flex-direction: row;
+                padding: 0.5rem;
+            }
+            
+            .timer-display {
+                flex: 1;
+                font-size: clamp(3rem, 15vw, 8rem);
+            }
+            
+            .controls {
+                flex: 0 0 auto;
+                width: auto;
+                max-width: 50%;
+            }
+            
+            .top-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .bottom-row {
+                gap: 0.4rem;
+            }
+            
+            button {
+                padding: 0.4rem 1rem;
                 font-size: 0.85rem;
+                min-height: 36px;
+            }
+        }
+
+        /* 터치 기기 최적화 */
+        @media (hover: none) and (pointer: coarse) {
+            button, .preset-btn {
+                transition: none;
+            }
+            
+            button:active, .preset-btn:active {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+            
+            .timer-display:hover {
+                transform: none;
+            }
+            
+            .timer-display:active {
+                transform: scale(0.98);
+                opacity: 0.9;
             }
         }
     </style>
 </head>
 <body>
     <div class="flash-overlay" id="flashOverlay"></div>
+    <div class="fullscreen-hint" id="fullscreenHint">화면을 탭하여 설정 표시</div>
     
-    <div class="container">
+    <div class="container" id="container">
         <div class="timer-display" id="timerDisplay" onclick="toggleTimer()">03:00</div>
         
-        <div class="controls">
+        <div class="controls" id="controls">
             <div class="top-row">
-                <div class="time-input">
-                    <div>
-                        <label for="minutes">분</label>
-                        <input type="number" id="minutes" min="0" max="59" value="3">
+                <div class="time-input-wrapper">
+                    <div class="time-input">
+                        <div>
+                            <label for="minutes">분</label>
+                            <input type="number" id="minutes" min="0" max="59" value="3" inputmode="numeric">
+                        </div>
+                        <div>
+                            <label for="seconds">초</label>
+                            <input type="number" id="seconds" min="0" max="59" value="0" inputmode="numeric">
+                        </div>
                     </div>
-                    <div>
-                        <label for="seconds">초</label>
-                        <input type="number" id="seconds" min="0" max="59" value="0">
+                    
+                    <div class="preset-buttons">
+                        <button class="preset-btn" onclick="setPresetTime(1)">1분</button>
+                        <button class="preset-btn" onclick="setPresetTime(3)">3분</button>
+                        <button class="preset-btn" onclick="setPresetTime(5)">5분</button>
                     </div>
-                </div>
-                
-                <div class="preset-buttons">
-                    <button class="preset-btn" onclick="setPresetTime(1)">1분</button>
-                    <button class="preset-btn" onclick="setPresetTime(3)">3분</button>
-                    <button class="preset-btn" onclick="setPresetTime(5)">5분</button>
                 </div>
                 
                 <div class="notification-settings">
@@ -351,7 +579,11 @@
         let audioContext = null;
         let alarmInterval = null;
         let flashInterval = null;
+        let flashTimeoutId = null;
         let isAlarming = false;
+        let hasAlarmTriggered = false;
+        let controlsHideTimeout = null;
+        let isFullscreen = false;
         let notificationPlayed = {
             20: false,
             10: false,
@@ -422,17 +654,19 @@
 
         // 시간 표시 업데이트
         function updateDisplay() {
-            const minutes = Math.floor(remainingSeconds / 60);
-            const seconds = remainingSeconds % 60;
+            const absSeconds = Math.abs(remainingSeconds);
+            const minutes = Math.floor(absSeconds / 60);
+            const seconds = absSeconds % 60;
             
-            const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const sign = remainingSeconds < 0 ? '-' : '';
+            const display = `${sign}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             document.getElementById('timerDisplay').textContent = display;
             
             // 경고 색상
             const timerDisplay = document.getElementById('timerDisplay');
-            timerDisplay.classList.remove('warning', 'danger', 'alarm');
+            timerDisplay.classList.remove('warning', 'danger', 'alarm', 'overtime');
             
-            // 중간 알림 체크
+            // 중간 알림 체크 (음수가 아닐 때만)
             if (isRunning && remainingSeconds > 0) {
                 // 20초 알림
                 if (remainingSeconds === 20 && !notificationPlayed[20] && document.getElementById('notify20').checked) {
@@ -451,12 +685,16 @@
                 }
             }
             
-            if (remainingSeconds === 0 && isRunning) {
+            // 색상 효과
+            if (remainingSeconds < 0) {
+                timerDisplay.classList.add('overtime');
+            } else if (remainingSeconds === 0 && isRunning && !hasAlarmTriggered) {
                 timerDisplay.classList.add('alarm');
                 triggerAlarm();
+                hasAlarmTriggered = true;
             } else if (remainingSeconds <= 10 && remainingSeconds > 0) {
                 timerDisplay.classList.add('danger');
-            } else if (remainingSeconds <= 30) {
+            } else if (remainingSeconds <= 30 && remainingSeconds > 0) {
                 timerDisplay.classList.add('warning');
             }
         }
@@ -467,7 +705,7 @@
                 const minutes = parseInt(document.getElementById('minutes').value) || 0;
                 const seconds = parseInt(document.getElementById('seconds').value) || 0;
                 
-                if (remainingSeconds === 0) {
+                if (remainingSeconds === 0 && !hasAlarmTriggered) {
                     totalSeconds = minutes * 60 + seconds;
                     remainingSeconds = totalSeconds;
                     // 알림 플래그 초기화
@@ -480,9 +718,10 @@
                         2: false,
                         1: false
                     };
+                    hasAlarmTriggered = false;
                 }
                 
-                if (remainingSeconds > 0) {
+                if (remainingSeconds !== 0 || hasAlarmTriggered) {
                     isRunning = true;
                     document.getElementById('startBtn').style.display = 'none';
                     document.getElementById('pauseBtn').style.display = 'block';
@@ -492,16 +731,17 @@
                     document.getElementById('seconds').disabled = true;
                     
                     timerInterval = setInterval(() => {
-                        if (remainingSeconds > 0) {
-                            remainingSeconds--;
-                            updateDisplay();
-                        } else {
-                            pauseTimer();
-                        }
+                        remainingSeconds--;
+                        updateDisplay();
                     }, 1000);
                     
                     // 사용자 상호작용을 통해 오디오 컨텍스트 활성화
                     initAudioContext();
+                    
+                    // 전체화면에서 시작하면 컨트롤 숨기기
+                    if (isFullscreen) {
+                        hideControlsAfterDelay();
+                    }
                 }
             }
         }
@@ -520,6 +760,7 @@
             stopAlarm();
             remainingSeconds = 0;
             totalSeconds = 0;
+            hasAlarmTriggered = false;
             
             // 기본값 3분으로 설정
             document.getElementById('minutes').value = 3;
@@ -542,7 +783,7 @@
             
             // 디스플레이를 03:00으로 표시
             document.getElementById('timerDisplay').textContent = '03:00';
-            document.getElementById('timerDisplay').classList.remove('warning', 'danger', 'alarm');
+            document.getElementById('timerDisplay').classList.remove('warning', 'danger', 'alarm', 'overtime');
         }
 
         // 알람 정지
@@ -550,6 +791,10 @@
             isAlarming = false;
             clearInterval(alarmInterval);
             clearInterval(flashInterval);
+            if (flashTimeoutId) {
+                clearTimeout(flashTimeoutId);
+                flashTimeoutId = null;
+            }
             document.getElementById('stopBtn').style.display = 'none';
             document.getElementById('timerDisplay').classList.remove('alarm');
         }
@@ -565,7 +810,6 @@
             
             // 화면 깜빡임
             const flashOverlay = document.getElementById('flashOverlay');
-            let flashCount = 0;
             
             const flash = () => {
                 if (!isAlarming) return;
@@ -575,6 +819,48 @@
             
             flash();
             flashInterval = setInterval(flash, 1000);
+            
+            // 5초 후 화면 깜빡임만 중단
+            flashTimeoutId = setTimeout(() => {
+                clearInterval(flashInterval);
+                flashInterval = null;
+            }, 5000);
+        }
+
+        // 전체화면 컨트롤 관리
+        function showControls() {
+            if (isFullscreen) {
+                const controls = document.getElementById('controls');
+                controls.classList.add('visible');
+                
+                // 기존 타이머 취소
+                if (controlsHideTimeout) {
+                    clearTimeout(controlsHideTimeout);
+                }
+                
+                // 3초 후 자동으로 숨기기
+                hideControlsAfterDelay();
+            }
+        }
+
+        function hideControls() {
+            const controls = document.getElementById('controls');
+            controls.classList.remove('visible');
+        }
+
+        function hideControlsAfterDelay() {
+            controlsHideTimeout = setTimeout(() => {
+                hideControls();
+            }, 3000);
+        }
+
+        // 전체화면 힌트 표시
+        function showFullscreenHint() {
+            const hint = document.getElementById('fullscreenHint');
+            hint.classList.add('show');
+            setTimeout(() => {
+                hint.classList.remove('show');
+            }, 3000);
         }
 
         // 전체화면 토글
@@ -609,6 +895,12 @@
 
         // 타이머 토글 (화면 클릭)
         function toggleTimer() {
+            if (isFullscreen) {
+                // 전체화면에서는 컨트롤 표시/숨기기
+                showControls();
+                return;
+            }
+            
             if (isAlarming) {
                 stopAlarm();
             } else if (isRunning) {
@@ -622,7 +914,11 @@
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
-                toggleTimer();
+                if (!isFullscreen) {
+                    toggleTimer();
+                } else {
+                    showControls();
+                }
             } else if (e.code === 'KeyR') {
                 resetTimer();
             } else if (e.code === 'KeyF') {
@@ -632,8 +928,66 @@
             }
         });
 
+        // 전체화면 변경 감지
+        document.addEventListener('fullscreenchange', () => {
+            isFullscreen = !!document.fullscreenElement;
+            if (isFullscreen) {
+                showFullscreenHint();
+                hideControls();
+            } else {
+                // 전체화면 해제 시 컨트롤 표시
+                const controls = document.getElementById('controls');
+                controls.classList.remove('visible');
+                if (controlsHideTimeout) {
+                    clearTimeout(controlsHideTimeout);
+                }
+            }
+        });
+
+        document.addEventListener('webkitfullscreenchange', () => {
+            isFullscreen = !!document.webkitFullscreenElement;
+            if (isFullscreen) {
+                showFullscreenHint();
+                hideControls();
+            } else {
+                const controls = document.getElementById('controls');
+                controls.classList.remove('visible');
+                if (controlsHideTimeout) {
+                    clearTimeout(controlsHideTimeout);
+                }
+            }
+        });
+
+        // 컨트롤에 마우스 올려놓으면 자동 숨김 취소
+        document.getElementById('controls').addEventListener('mouseenter', () => {
+            if (controlsHideTimeout) {
+                clearTimeout(controlsHideTimeout);
+            }
+        });
+
+        document.getElementById('controls').addEventListener('mouseleave', () => {
+            if (isFullscreen) {
+                hideControlsAfterDelay();
+            }
+        });
+
+        // 컨트롤 클릭 이벤트 전파 방지
+        document.getElementById('controls').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
         // 초기 표시 - 기본값 3분
         updateDisplay();
+
+        // 뷰포트 높이 조정 (모바일 브라우저 주소창 대응)
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
     </script>
 </body>
 </html>

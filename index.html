@@ -296,6 +296,7 @@
             opacity: 1;
         }
 
+<<<<<<< HEAD
         /* 단축키 가이드 */
         .shortcut-guide {
             position: fixed;
@@ -317,6 +318,8 @@
             opacity: 1;
         }
 
+=======
+>>>>>>> 06aa51b8874062823d5f2d3fe6e4e10425ff999b
         .flash-overlay {
             position: fixed;
             top: 0;
@@ -547,6 +550,7 @@
 <body>
     <div class="flash-overlay" id="flashOverlay"></div>
     <div class="fullscreen-hint" id="fullscreenHint">화면을 탭하여 설정 표시</div>
+<<<<<<< HEAD
     <div class="shortcut-guide" id="shortcutGuide">
         <strong>단축키:</strong><br>
         Space - 시작/일시정지<br>
@@ -555,6 +559,8 @@
         S - 알람 정지<br>
         ? - 도움말
     </div>
+=======
+>>>>>>> 06aa51b8874062823d5f2d3fe6e4e10425ff999b
     
     <div class="container" id="container">
         <div class="timer-display" id="timerDisplay" onclick="toggleTimer()">03:00</div>
@@ -892,6 +898,7 @@
             }, 3000);
         }
 
+<<<<<<< HEAD
         // 단축키 가이드 표시
         function showShortcutGuide() {
             const guide = document.getElementById('shortcutGuide');
@@ -901,6 +908,8 @@
             }, 5000);
         }
 
+=======
+>>>>>>> 06aa51b8874062823d5f2d3fe6e4e10425ff999b
         // 전체화면 토글
         function toggleFullscreen() {
             if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -948,6 +957,7 @@
             }
         }
 
+<<<<<<< HEAD
         // 키보드 이벤트 핸들러
         function handleKeyPress(e) {
             // 입력 필드에 포커스가 있으면 단축키 무시
@@ -1022,6 +1032,32 @@
                 hideControls();
                 // 전체화면에서 포커스 설정
                 document.getElementById('container').focus();
+=======
+        // 키보드 단축키
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!isFullscreen) {
+                    toggleTimer();
+                } else {
+                    showControls();
+                }
+            } else if (e.code === 'KeyR') {
+                resetTimer();
+            } else if (e.code === 'KeyF') {
+                toggleFullscreen();
+            } else if (e.code === 'KeyS' && isAlarming) {
+                stopAlarm();
+            }
+        });
+
+        // 전체화면 변경 감지
+        document.addEventListener('fullscreenchange', () => {
+            isFullscreen = !!document.fullscreenElement;
+            if (isFullscreen) {
+                showFullscreenHint();
+                hideControls();
+>>>>>>> 06aa51b8874062823d5f2d3fe6e4e10425ff999b
             } else {
                 // 전체화면 해제 시 컨트롤 표시
                 const controls = document.getElementById('controls');
@@ -1030,10 +1066,28 @@
                     clearTimeout(controlsHideTimeout);
                 }
             }
+<<<<<<< HEAD
         }
 
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+=======
+        });
+
+        document.addEventListener('webkitfullscreenchange', () => {
+            isFullscreen = !!document.webkitFullscreenElement;
+            if (isFullscreen) {
+                showFullscreenHint();
+                hideControls();
+            } else {
+                const controls = document.getElementById('controls');
+                controls.classList.remove('visible');
+                if (controlsHideTimeout) {
+                    clearTimeout(controlsHideTimeout);
+                }
+            }
+        });
+>>>>>>> 06aa51b8874062823d5f2d3fe6e4e10425ff999b
 
         // 컨트롤에 마우스 올려놓으면 자동 숨김 취소
         document.getElementById('controls').addEventListener('mouseenter', () => {
@@ -1065,12 +1119,15 @@
         setVH();
         window.addEventListener('resize', setVH);
         window.addEventListener('orientationchange', setVH);
+<<<<<<< HEAD
 
         // 페이지 로드 시 컨테이너에 포커스
         window.addEventListener('load', () => {
             document.getElementById('container').setAttribute('tabindex', '-1');
             document.getElementById('container').focus();
         });
+=======
+>>>>>>> 06aa51b8874062823d5f2d3fe6e4e10425ff999b
     </script>
 </body>
 </html>
